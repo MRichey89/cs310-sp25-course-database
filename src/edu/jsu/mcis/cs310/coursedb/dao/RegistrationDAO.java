@@ -2,6 +2,7 @@ package edu.jsu.mcis.cs310.coursedb.dao;
 
 import com.github.cliftonlabs.json_simple.JsonArray;
 import com.github.cliftonlabs.json_simple.JsonObject;
+import com.github.cliftonlabs.json_simple.Jsoner;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -143,7 +144,7 @@ public class RegistrationDAO {
         
         final String QUERY_LIST = "SELECT * FROM registration WHERE studentid = ? AND termid = ? ORDER BY crn";
         
-        String JSONresult = "";
+        String JSONresult = "[]";
         JsonArray jsonArray = new JsonArray();
         
         
@@ -160,16 +161,18 @@ public class RegistrationDAO {
                 ps.setInt(2, termid);
             
                 rs = ps.executeQuery();
+                /*
+                while (rs.next()){
+                    JsonObject jsonObject = new JsonObject();
+                    jsonObject.put("studentid", String.valueOf(studentid));
+                    jsonObject.put("termid", String.valueOf(termid));
+                    jsonObject.put("crn", String.valueOf(rs.getInt("crn")));
+                    jsonArray.add(jsonObject);
+                }        
                 
-                    while (rs.next()){
-                        JsonObject jsonObject = new JsonObject();
-                        jsonObject.put("STU", String.valueOf(studentid));
-                        jsonObject.put("TID", String.valueOf(termid));
-                        jsonArray.add(jsonObject);
-                    }                        
-                    jsonArray.toString();
+                JSONresult = Jsoner.serialize(jsonArray);*/
                         
-           
+                JSONresult = DAOUtility.getResultSetAsJson(rs);
                 
                 
             }

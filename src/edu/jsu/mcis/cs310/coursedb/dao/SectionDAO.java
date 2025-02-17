@@ -6,8 +6,6 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import com.github.cliftonlabs.json_simple.*;
 
-
-
 public class SectionDAO {
     
     private static final String QUERY_FIND = "SELECT * FROM section WHERE termid = ? AND subjectid = ? AND num = ? ORDER BY crn";
@@ -20,61 +18,62 @@ public class SectionDAO {
     
     public String find(int termid, String subjectid, String num) {
         
-        String result = "[]";
-        
+        String result = "[]"; 
         PreparedStatement ps = null;
         ResultSet rs = null;
-        ResultSetMetaData rsmd = null;
-        
+
         try {
             
             Connection conn = daoFactory.getConnection();
             
             if (conn.isValid(0)) {
                 
-                // INSERT YOUR CODE HERE
+                ps = conn.prepareStatement(QUERY_FIND);
+                ps.setInt(1, termid);
+                ps.setString(2, subjectid);
+                ps.setString(3, num);
                 
-            ps = conn.prepareStatement(QUERY_FIND);
-            ps.setInt(1, termid);
-            ps.setString(2, subjectid);
-            ps.setString(3, num);
-            
-            
-            rs = ps.executeQuery();
-            rsmd = rs.getMetaData();
-            
-            JsonArray jsonArray = new JsonArray();
-            
-            
-             while (rs.next()){
-                        JsonObject jsonObject = new JsonObject();
-                        jsonObject.put("TID", String.valueOf(termid));
-                        jsonObject.put("SID", String.valueOf(subjectid));
-                        jsonObject.put("NUM", String.valueOf(num));
-                        jsonArray.add(jsonObject);
-                        
-                    }                        
-            jsonArray.toString();
-                        
-            
-            result = jsonArray.toJson(); 
+                rs = ps.executeQuery();
+                
+                result = DAOUtility.getResultSetAsJson(rs);
+                
+                /*
+                // remove stuff below and work in DAOUtility.getResultSetAsJson()
+                ResultSetMetaData rsmd = rs.getMetaData();
+                int columnCount = rsmd.getColumnCount();
+
+                JsonArray jsonArray = new JsonArray();
+                
+                while (rs.next()) {
+                    JsonObject jsonObject = new JsonObject();
+                    
+                    for (int i = 1; i <= columnCount; i++) {
+                        String columnName = rsmd.getColumnName(i);
+                        Object columnValue = rs.getObject(i);
+                        jsonObject.put(columnName, columnValue);
+                    }
+                    
+                    jsonArray.add(jsonObject);
+                }
                 
                 
+                if (!jsonArray.isEmpty()) {
+                    result = Jsoner.serialize(jsonArray);
+                }
+                */
+            }
+            else {
+                System.err.println("Connection closed!");
             }
             
-        }
-        
-        catch (Exception e) { e.printStackTrace(); }
-        
-        finally {
-            
-            if (rs != null) { try { rs.close(); } catch (Exception e) { e.printStackTrace(); } }
-            if (ps != null) { try { ps.close(); } catch (Exception e) { e.printStackTrace(); } }
-            
+        } catch (Exception e) { 
+            e.printStackTrace();
+        } finally {
+            // Close resources
+            try { if (rs != null) rs.close(); } catch (Exception e) { e.printStackTrace(); }
+            try { if (ps != null) ps.close(); } catch (Exception e) { e.printStackTrace(); }
         }
         
         return result;
-        
     }
-    
 }

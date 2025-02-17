@@ -27,7 +27,7 @@ public class DAOUtility {
                     
                     for (int i = 1; i <= columnCount; i++) {
                         String columnName = rsmd.getColumnName(i);
-                        Object value = rs.getObject(i);
+                        String value = rs.getObject(i).toString();
 
                         
                         record.put(columnName, value);
